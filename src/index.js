@@ -1,74 +1,43 @@
-import express from "express"
-import __dirname from "./utils.js"
-import handlebars from "express-handlebars"
-import {Server} from "socket.io"
+import express from "express";
+import __dirname from "./utils.js";
+import handlebars from "express-handlebars";
 import "./dao/dbConfig.js"
 
-import ViewRouter from "./routes/view.routes.js"
+import { ViewRouter } from "./routes/view.routes.js";
 import ProductRouter from "./routes/product.routes.js"
+import { product } from "./routes/product.routes.js";
 import CartRouter from "./routes/carts.routes.js"
 import ProductManager from "./dao/mongomanagers/productManagerMongo.js"
 
-const app =express()
-const PORT=8080;
+/*
+import { router as ProductRouter,dbM } from "./routes/api/product.router.js"
+import { router as CartRouter} from "./routes/api/cart.router.js"
+import { router as viewsRouter } from "./routes/views.router.js"
+//import MessageManager from "./Dao/MessagesManager.js"; */
 
+
+const app = express()
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.static(__dirname + "/public"))
-//handlebars
-app.engine("handlebars",handlebars.engine())
-app.set("views", __dirname+"/views")
-app.set("view engine","handlebars")
 
-//rutas
-app.use("/api",ProductRouter)
-app.use("/api",CartRouter)
-app.use("/",ViewRouter)
+//Api Routes
+app.use('/api/products', ProductRouter);
+app.use('/api/carts', CartRouter);
 
 
-const httpServer=app.listen(PORT,()=>{
-    console.log("server up ")
+
+// Views routes
+app.use('/', ViewRouter);
+app.engine("handlebars", handlebars.engine())
+app.set("views", __dirname + "/views")
+app.set("view engine", "handlebars")
+
+const PORT = 8080
+
+const httpServer = app.listen(PORT, () => {
+    console.log("Andando en puerto " + PORT)
 })
 
- const socketServer = new  Server(httpServer)
- const pmanager=new ProductManager()
 
-
-import MessagesManager from "./dao/mongomanagers/messageManagerMongo.js";
-const messagesManager = new MessagesManager();
-
-socketServer.on("connection",async (socket)=>{
-    console.log("cliente conectado con id:" ,socket.id)
-    const products = await pmanager.getProducts({});
-    socket.emit('productos', products);
-
-    socket.on('addProduct', async data => {
-        await pmanager.addProduct(data);
-        const updatedProducts = await pmanager.getProducts({}); // Obtener la lista actualizada de productos
-    socket.emit('productosupdated', updatedProducts);
-      });
-
-      socket.on("deleteProduct", async (id) => {
-        console.log("ID del producto a eliminar:", id);
-        const deletedProduct = await pmanager.deleteProduct(id);
-        const updatedProducts = await pmanager.getProducts({});
-        socketServer.emit("productosupdated", updatedProducts);
-      });
-
-      socket.on("nuevousuario",(usuario)=>{
-        console.log("usuario" ,usuario)
-        socket.broadcast.emit("broadcast",usuario)
-       })
-       socket.on("disconnect",()=>{
-           console.log(`Usuario con ID : ${socket.id} esta desconectado `)
-       })
-   
-       socket.on("mensaje", async (info) => {
-        // Guardar el mensaje utilizando el MessagesManager
-        console.log(info)
-        await messagesManager.createMessage(info);
-        // Emitir el mensaje a todos los clientes conectados
-        socketServer.emit("chat", await messagesManager.getMessages());
-      });
-
-})
+httpServer

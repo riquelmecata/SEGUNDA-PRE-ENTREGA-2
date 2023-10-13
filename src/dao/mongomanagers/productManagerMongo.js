@@ -1,61 +1,81 @@
-import { productsModel } from "../models/products.model.js";
+import {ProductsModel} from "../models/products.model.js"
 
-// Clase que gestiona los productos
 export default class ProductManager {
 
-    // Método para obtener todos los productos
-    getProducts = async () => {
+    getProducts = async (limit, page, sort, filterQuery) => {
         try {
-            // Consulta la base de datos para obtener todos los productos y los convierte a objetos JavaScript
-            return await productsModel.find().lean();
-        } catch (err) {
-            // En caso de error, devuelve el error
-            return err;
+            let options = { limit: 10, page: 1 }
+            if (limit) options.limit = limit
+            if (page) options.page = page
+            if (sort) options.sort = { price: sort }
+            const data = await ProductsModel.paginate(filterQuery, options)
+
+            let obj = {
+                payload: data.docs,
+                totalPages: data.totalPages,
+                prevPage: data.prevPage,
+                nextPage: data.nextPage,
+                page: data.page,
+                hasPrevPage: data.hasPrevPage,
+                hasNextPage: data.hasNextPage,
+                prevLink: data.prevPage ? `localhost:8080/api/products?limit=${options.limit}&page=${data.prevPage}` : null,
+                nextLink: data.nextPage ? `localhost:8080/api/products?limit=${options.limit}&page=${data.nextPage}` : null,
+            }
+            return obj
+        } catch (error) {
+            throw error
         }
     }
 
-    // Método para obtener un producto por su ID
     getProductById = async (id) => {
+
         try {
-            // Consulta la base de datos para obtener un producto por su ID
-            return await productsModel.findById(id);
-        } catch (err) {
-            // En caso de error, devuelve un objeto con un mensaje de error
-            return { error: err.message };
+            let products = await ProductsModel.findById(id)
+            if (products) return products
+            else {
+                return { Error: "Not found" }
+            }
+        } catch (error) {
+            console.log(error)
+            return error
         }
     }
 
-    // Método para agregar un nuevo producto
-    addProduct = async (product) => {
+    addProduct = async (productEn) => {
+        const { title, description, code, price, status, stock, category, thumbnail } = productEn
+
+        if (title !== undefined && description !== undefined && code !== undefined && price !== undefined && stock !== undefined && category !== undefined) {
+
+            try {
+                await ProductsModel.create(productEn)
+                return "Product added"
+            } catch (e) {
+                throw new Error(e.message)
+            }
+        } else throw new Error("Some fields are emptys")
+
+
+    }
+
+    updateProduct = async (id, keysObject) => {
         try {
-            // Crea un nuevo producto en la base de datos y luego lo busca para obtener el producto creado
-            await productsModel.create(product);
-            return await productsModel.findOne({ title: product.title });
-        } catch (err) {
-            // En caso de error, devuelve el error
-            return err;
+            const msg = await ProductsModel.findOneAndUpdate({ _id: id }, keysObject)
+            if (msg) {
+                let updated = await ProductsModel.findById(id)
+                return updated
+            } else throw new Error("Not found")
+        } catch (error) {
+            throw error
         }
     }
 
-    // Método para actualizar un producto por su ID
-    updateProduct = async (id, product) => {
-        try {
-            // Actualiza un producto en la base de datos por su ID
-            return await productsModel.findByIdAndUpdate(id, { $set: product });
-        } catch (err) {
-            // En caso de error, devuelve el error
-            return err;
-        }
-    }
-
-    // Método para eliminar un producto por su ID
     deleteProduct = async (id) => {
         try {
-            // Elimina un producto en la base de datos por su ID
-            return await productsModel.findByIdAndDelete(id);
-        } catch (err) {
-            // En caso de error, devuelve el error
-            return err;
+            let deleted = await ProductsModel.findByIdAndDelete(id)
+            if (!deleted) throw new Error("Not found")
+        } catch (error) {
+            throw error
         }
+
     }
 }
