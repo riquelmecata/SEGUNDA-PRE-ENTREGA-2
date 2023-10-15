@@ -2,27 +2,28 @@
 <div class="justify-content-center row">
     {{#each productos}}
     <div class="card m-2 col-2">
-        <img src="https://media.tenor.com/WpgSYAYBpLkAAAAC/hacker.gif" class="card-img-top" alt="coderhouse">
         <div class="card-body">
+             <img src="{{thumbnail}}" class="card-img-top mb-3" alt="imagen producto">
             <h5 class="card-title">{{title}}</h5>
-            <p class="card-text">Description: {{description}}</p>
-            <p>Precio: ${{price}}</p>
-            <p>imagenes url:</p>
-            {{#each thumbnails}}
-            <ul>
-                <li>{{this}}</li>
-            </ul>
-            {{/each}}
-            <p>Codigo: {{code}}</p>
-            <p>Stock: {{stock}}</p>
-            <a href='http://localhost:8080/products/{{_id}}'><button class="btn my-2 mx-4 btn-warning ">Ver
-                    Detalles</button></a>
-            <button class="btn mx-2 btn-outline-success" data-id={{_id}}>Agregar al carrito</button>
+            <h4 class="card-title">${{price}}</h4>
+            <p class="card-text">{{description}}</p>
+            <p class="card-text"><small class="text-body-secondary">
+                    Codigo: {{code}}
+                    Stock: {{stock}}
+            </small></p> 
+           <div class="row justify-content-center">
+<div class="d-flex justify-content-center align-items-center">
+    <a href='http://localhost:8080/products/{{_id}}' class="text-decoration-none"><button class="btn btn-outline-primary mx-2">Ver Detalles</button></a>
+    <button class="btn btn-outline-success mx-2" data-id={{_id}}>Agregar al carrito</button>
+</div>
+</div>
             
         </div>
     </div>
     {{/each}}
 </div>
+
+
 
 <div class="justify-content-center row">
     {{#if hasPrevPage}}
