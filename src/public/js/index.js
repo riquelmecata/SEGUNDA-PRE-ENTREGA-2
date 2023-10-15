@@ -9,6 +9,7 @@ const category = document.getElementById('category')
 
 
 
+
 const resetForm = () => {
     title.value = ''
     description.value = ''
@@ -19,14 +20,14 @@ const resetForm = () => {
 
 }
 
-let deleteButton = document.querySelectorAll('.btn-success')
+let deleteButton = document.querySelectorAll('.btn-outline-success')
 console.log(deleteButton)
 deleteButton.forEach((btn) => {
     btn.addEventListener('click',async (e) => {
         const idProduct = e.target.getAttribute('data-id')
         console.log(idProduct)
         try {
-            await axios.post("http://localhost:8080/api/carts/643de776b2189188a9bcdaf3/product/"+idProduct)
+            await axios.post("http://localhost:8080/api/carts/651cd552fef520effdaae934/product/"+idProduct)
             alert("Producto agregado")
         } catch (error) {
             alert(error.message)

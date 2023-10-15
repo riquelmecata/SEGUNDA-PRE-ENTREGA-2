@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import ProductManager from "../dao/mongomanagers/productManagerMongo.js"
+//import ProductManager from "../../../ProductManager.js"
+import ProductManager from '../../dao/mongomanagers/productManagerMongo.js';
 
-export const product = new ProductManager()
+export const dbM = new ProductManager()
 
 // Importar todos los routers;
-const ProductRouter = Router()
+export const router = Router();
 
-ProductRouter.get("/", async (req, res) => {
+router.get("/", async (req, res) => {
 
     try {
         const { limit, page, sort } = req.query
@@ -15,7 +16,7 @@ ProductRouter.get("/", async (req, res) => {
         if(page) delete filterQuery.page
         if(sort) delete filterQuery.sort
         console.log(filterQuery)
-        let arrProduct = await product.getProducts(limit, page, sort, filterQuery)
+        let arrProduct = await dbM.getProducts(limit, page, sort, filterQuery)
         res.status(200).json({
             status: "success",
             ...arrProduct
@@ -27,12 +28,12 @@ ProductRouter.get("/", async (req, res) => {
 
 
 // Endpoint para traer el producto solicitado by id en el params
-ProductRouter.get("/:pid", async (req, res) => {
+router.get("/:pid", async (req, res) => {
     const { pid } = req.params
     if (pid) {
         try {
 
-            let payload = await product.getProductById(pid)
+            let payload = await dbM.getProductById(pid)
             res.status(200).json({ status: "success", payload, })
         } catch (e) {
             res.status(500).json({ status: "error", error: e.message })
@@ -41,9 +42,9 @@ ProductRouter.get("/:pid", async (req, res) => {
 
 })
 
-ProductRouter.post("/", async (req, res) => {
+router.post("/", async (req, res) => {
     const { title, description, code, price,
-        status, stock, category, thumbnails } = req.body
+        status, stock, category, thumbnail } = req.body
     if (title !== undefined && description !== undefined && code !== undefined && price !== undefined && stock !== undefined && category !== undefined) {
         try {
             let obj = {}
@@ -55,15 +56,15 @@ ProductRouter.post("/", async (req, res) => {
             obj.status = Boolean(status ? status : true)
             obj.stock = parseInt(stock)
             obj.category = category.toString()
-            obj.thumbnails = thumbnails ? thumbnails : []
-            if (thumbnails && Array.isArray(thumbnails)) {
-                for (let i = 0; i < thumbnails.length; i++) {
-                    obj.thumbnails[i] = thumbnails[i].toString();
+            obj.thumbnail = thumbnail ? thumbnail : []
+            if (thumbnail && Array.isArray(thumbnail)) {
+                for (let i = 0; i < thumbnail.length; i++) {
+                    obj.thumbnail[i] = thumbnail[i].toString();
 
                 }
             }
 
-            let arrProduct = await product.addProduct(obj)
+            let arrProduct = await dbM.addProduct(obj)
             console.log(arrProduct)
             res.status(200).json({ result: arrProduct })
         } catch (e) {
@@ -73,7 +74,7 @@ ProductRouter.post("/", async (req, res) => {
 
 })
 
-ProductRouter.put("/:pid", async (req, res) => {
+router.put("/:pid", async (req, res) => {
     const { pid } = req.params
     let objeChanges = { ...req.body }
     delete objeChanges.id;
@@ -90,17 +91,17 @@ ProductRouter.put("/:pid", async (req, res) => {
             if (objeChanges.stock) objeChanges.stock = parseInt(objeChanges.stock)
             if (objeChanges.category) objeChanges.category = objeChanges.category.toString()
             if (objeChanges.category) objeChanges.category = objeChanges.category.toString()
-            if (objeChanges.thumbnails) {
-                if (Array.isArray(objeChanges.thumbnails)) {
-                    for (let i = 0; i < objeChanges.thumbnails.length; i++) {
-                        objeChanges.thumbnails[i] = objeChanges.thumbnails[i].toString();
+            if (objeChanges.thumbnail) {
+                if (Array.isArray(objeChanges.thumbnail)) {
+                    for (let i = 0; i < objeChanges.thumbnail.length; i++) {
+                        objeChanges.thumbnail[i] = objeChanges.thumbnail[i].toString();
 
                     }
                 }
             }
 
 
-            let arrProduct = await product.updateProduct(pid, objeChanges)
+            let arrProduct = await dbM.updateProduct(pid, objeChanges)
             res.status(200).json({ result: arrProduct })
         } catch (e) {
             res.status(500).json({ error: e.message })
@@ -109,13 +110,13 @@ ProductRouter.put("/:pid", async (req, res) => {
 
 })
 
-ProductRouter.delete("/:pid", async (req, res) => {
+router.delete("/:pid", async (req, res) => {
     const { pid } = req.params
 
     if (pid) {
         try {
-            await product.deleteProduct(pid)
-            res.status(200).json({ result: "Product Deleted" })
+            await dbM.deleteProduct(pid)
+            res.status(200).json({ result: "Producto eliminado" })
         } catch (e) {
             console.log(e)
             res.status(500).json({ error: e.message })
@@ -124,7 +125,4 @@ ProductRouter.delete("/:pid", async (req, res) => {
 
 })
 
-export default ProductRouter
-
-export const productIdFinderDBM = product.getProductById
-
+export const productIdFinderDBM = dbM.getProductById

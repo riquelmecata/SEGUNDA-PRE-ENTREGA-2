@@ -1,13 +1,12 @@
 import { Router } from 'express';
-import CartManager from '../dao/mongomanagers/cartManagerMongo.js';
+import CartManagerDB from '../../dao/mongomanagers/cartManagerMongo.js';
+export const dbM = new CartManagerDB()
+export const router = Router();
 
-export const carts = new CartManager()
-const CartRouter = Router();
-
-CartRouter.post("/", async (req, res) => {
+router.post("/", async (req, res) => {
     const { products } = req.body
     try {
-        let cart= await carts.createCart(products)
+        let cart= await dbM.createCart(products)
         
         res.status(200).json({ result: cart })
     } catch (e) {
@@ -15,12 +14,12 @@ CartRouter.post("/", async (req, res) => {
     }
 })
 
-CartRouter.get("/:cid", async (req, res) => {
+router.get("/:cid", async (req, res) => {
     const { cid } = req.params
     if (cid) {
 
         try {
-            let arrProduct = await carts.getCartById(cid)
+            let arrProduct = await dbM.getCartById(cid)
             res.status(200).json({status:"success", payload: arrProduct })
         } catch (e) {
             res.status(500).json({ errr: e })
@@ -28,13 +27,13 @@ CartRouter.get("/:cid", async (req, res) => {
     } else res.status(400).json({ err: "Cid is empty" })
 })
 
-CartRouter.put("/:cid", async (req, res) => {
+router.put("/:cid", async (req, res) => {
     const { cid } = req.params
     const { products } = req.body
 
     if (cid && products) {
         try {
-            let result = await carts.updateCartByArr(cid, products)
+            let result = await dbM.updateCartByArr(cid, products)
             res.status(200).json({ status:"success",payload: result })
         } catch (e) {
             console.log(e)
@@ -43,12 +42,12 @@ CartRouter.put("/:cid", async (req, res) => {
     } else res.status(400).json({  status:"error",err: "Cid and Array must be provided" })
 })
 
-CartRouter.delete("/:cid", async (req, res) => {
+router.delete("/:cid", async (req, res) => {
     const { cid } = req.params
     if (cid) {
 
         try {
-            let arrProduct = await carts.cartCleaner(cid)
+            let arrProduct = await dbM.cartCleaner(cid)
             res.status(200).json({status:"success", payload: arrProduct })
         } catch (e) {
             res.status(500).json({ errr: e })
@@ -56,14 +55,14 @@ CartRouter.delete("/:cid", async (req, res) => {
     } else res.status(400).json({ err: "Cid is empty" })
 })
 
-CartRouter.post("/:cid/product/:pid", async (req, res) => {
+router.post("/:cid/product/:pid", async (req, res) => {
     const { cid, pid } = req.params
 
     if (cid && pid) {
 
         try {
     
-            let result = await carts.updateCart(cid, pid)
+            let result = await dbM.updateCart(cid, pid)
 
             res.status(200).json({ result: result })
         } catch (e) {
@@ -74,12 +73,15 @@ CartRouter.post("/:cid/product/:pid", async (req, res) => {
 
 })
 
-CartRouter.delete("/:cid/product/:pid", async (req, res) => {
+
+
+
+router.delete("/:cid/product/:pid", async (req, res) => {
     const { cid, pid } = req.params
 
     if (cid && pid) {
         try {
-            let result = await carts.deleteProductCart(cid, pid)
+            let result = await dbM.deleteProductCart(cid, pid)
             res.status(200).json({ result: result })
         } catch (e) {
             console.log(e)
@@ -88,12 +90,12 @@ CartRouter.delete("/:cid/product/:pid", async (req, res) => {
     } else res.status(400).json({ err: "Cid and Pid must be provided" })
 })
 
-CartRouter.put("/:cid/product/:pid", async (req, res) => {
+router.put("/:cid/product/:pid", async (req, res) => {
     const { cid, pid } = req.params
 
     if (cid && pid) {
         try {
-            let result = await carts.updatePidQty(cid, pid)
+            let result = await dbM.updatePidQty(cid, pid)
             res.status(200).json({ status:"success", payload: result })
         } catch (e) {
             console.log(e)
@@ -101,5 +103,3 @@ CartRouter.put("/:cid/product/:pid", async (req, res) => {
         }
     } else res.status(400).json({ err: "Cid and Pid must be provided" })
 })
-
-export default CartRouter

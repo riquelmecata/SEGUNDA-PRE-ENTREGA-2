@@ -1,14 +1,15 @@
 import { Router } from 'express';
-import { product as dbInstance} from "./product.routes.js";
-import { carts as dbCart } from './carts.routes.js';
-import ProductManager from "../dao/mongomanagers/productManagerMongo.js"
-
-const pmanager=new ProductManager()
+import { dbM as dbInstance } from './api/product.routes.js';
+import { dbM as dbCart } from './api/carts.routes.js';
 
 // Importar todos los routers;
-export const ViewRouter = Router();
+export const router = Router();
 
-ViewRouter.get("/products", async (req, res) => {
+router.get("/",async(req,res)=>{
+    res.render("home")
+})
+
+router.get("/products", async (req, res) => {
 
     try {
         const { limit, page, sort } = req.query
@@ -27,7 +28,8 @@ ViewRouter.get("/products", async (req, res) => {
         res.send(500).json({ error: e })
     }
 })
-ViewRouter.get("/products/:pid", async (req, res) => {
+
+router.get("/products/:pid", async (req, res) => {
 
     try {
         const { pid } = req.params
@@ -42,7 +44,7 @@ ViewRouter.get("/products/:pid", async (req, res) => {
     }
 })
 
-ViewRouter.get("/carts/:cid", async (req, res) => {
+router.get("/carts/:cid", async (req, res) => {
 
     try {
         const { cid } = req.params
