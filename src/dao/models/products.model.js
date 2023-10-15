@@ -15,10 +15,10 @@ const ProductSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    thumbnail: {
+    thumbnail: [{
         //Ver
         type: String,
-    },
+    }],
     code: {
         type: String,
         required: true,

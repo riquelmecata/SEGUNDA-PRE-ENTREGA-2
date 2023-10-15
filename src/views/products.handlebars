@@ -21,16 +21,14 @@
         </div>
     </div>
     {{/each}}
-</div>
 
 
-
-<div class="justify-content-center row">
+<div class="text-center">
     {{#if hasPrevPage}}
-    <a href={{prevLink}}><button class="btn btn-warning mb-4 mx-1">Página anterior</button></a>
+        <a href={{prevLink}}><button class="btn btn-warning mb-4 mx-1">Página anterior</button></a>
     {{/if}}
     {{#if hasNextPage}}
-    <a href={{nextLink}}><button class="btn btn-warning mb-4">Pagina Siguiente</button></a>
+        <a href={{nextLink}}><button class="btn btn-warning mb-4">Página siguiente</button></a>
     {{/if}}
 </div>
 
@@ -38,5 +36,6 @@
 
 <h2>Sin productos.</h2>
 {{/if}}
+</div>
 
 <script src="/js/index.js"></script>

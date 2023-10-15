@@ -28,7 +28,12 @@ deleteButton.forEach((btn) => {
         console.log(idProduct)
         try {
             await axios.post("http://localhost:8080/api/carts/651cd552fef520effdaae934/product/"+idProduct)
-            alert("Producto agregado al carrito")
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'Producto agregado al carrito',
+                icon: 'success',
+                confirmButtonText: 'Entendido'
+            });
         } catch (error) {
             alert(error.message)
         }
